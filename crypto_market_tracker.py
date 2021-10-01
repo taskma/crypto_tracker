@@ -24,7 +24,6 @@ class DataCollect():
         pass
 
     def timer_process(self):
-        mongoClient.findQuery()
         print("yigit timer_process giris")
         # Market datası okunur
         response = cryptingup_api.api_call(function="assets/USD/markets", httpMethode=HttpMethode.GET)
@@ -47,7 +46,7 @@ class DataCollect():
             asset_datas.append(self.find_asset_in_market(markets, asset, ts))
 
         #Cryptolar USD karşılıkları Mongo db ye yazılır
-        mongoClient.addDatas(asset_datas)
+        mongoClient.add_cryptos(asset_datas)
 
         #Timer tekrar kurulur
         t = threading.Timer(api_cycle_time_sec, self.timer_process)
