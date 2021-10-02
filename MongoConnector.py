@@ -1,6 +1,7 @@
 import json
 from pymongo import MongoClient
 from datetime import datetime, timezone, timedelta
+from CollectionType import CollectionType
 
 class MongoConnector(object):
     def __init__(self, db_name, collection_name, host):
@@ -27,16 +28,14 @@ class MongoConnector(object):
         rec_id1 = self.collection.insert_many(datas)
         print("Data inserted with record ids", rec_id1)
 
-    def get_crypto_data_by_asset_in_24_hours(self, asset):
-        search_time = datetime.now() + timedelta(hours=-24)
-        return self.collection.find(
+    def get_crypto_data_by_asset_last_hours(self, asset, hours):
+        search_time = datetime.now() + timedelta(hours=-1 * hours)
+        collection = self.collection.find(
             {"ts": {"$gt": search_time},
              "metadata": {"asset": asset, "symbol": "{}-USD".format(asset)}
              })
+        crypto_collection = []
+        for col in collection:
+            crypto_collection.append(CollectionType(time=col["ts"], price=col["price"]))
+        return crypto_collection
 
-        # Printing the data inserted
-        # cursor = self.collection.find({"metadata": {"asset": "ETH", "symbol": "ETH-USD"}})
-        # print("search_time:", search_time)
-        # cursor = self.collection.find({"ts": {"$gt": search_time}, "metadata": {"asset": "ETH", "symbol": "ETH-USD"} })
-        # for record in cursor:
-        #     print(record)
