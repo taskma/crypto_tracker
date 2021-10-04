@@ -11,10 +11,11 @@ my_assets = ["ETH", "BTC", "DOGE", "ATOM", "FIL"]
 class Crypto():
     def __init__(self, asset):
         self.asset = asset
-        self.collections = []
+        self.collections = [CollectionType]
         self.collection_min_price = None
         self.collection_max_price = None
-        self.collection_avr_prices_in_hours = [CollectionType]
+        self.collection_avr_prices_in_hours = []
+        self.collection_prices_diff_in_hours = []
 
 #crypto listesi
 my_cryptos = []
@@ -35,6 +36,20 @@ class DataAnalysis():
         self.find_out_min_max_prices()
         # Crypto lar için Son 24 saat içindeki saatlik ortalama değerleri bulunur
         self.find_avarage_prices_in_hours()
+        # Crypto lar için Son 24 saat içindeki saatlik ortalama değer farkları bulunur
+        self.find_avarage_prices_diff_in_hours()
+
+    def find_avarage_prices_diff_in_hours(self):
+        diffrences = []
+        for crypto in my_cryptos:
+            avr_prices = crypto.collection_avr_prices_in_hours
+            for ind in range(len(avr_prices)-1):
+                diffrences.append(avr_prices[ind+1] - avr_prices[ind])
+            crypto.collection_prices_diff_in_hours = avr_prices
+            print("avarage prices diffrences: ", crypto.asset)
+            for col in crypto.collection_prices_diff_in_hours:
+                print(col)
+
 
     def find_avarage_prices_in_hours(self):
         for crypto in my_cryptos:
@@ -43,15 +58,14 @@ class DataAnalysis():
                 count = 0
                 search_start_time = self.add_hours_to_now(hours=-24+hour)
                 search_end_time = self.add_hours_to_now(hours=-24+hour+1)
-                # print("search_start_time", search_start_time)
-                # print("search_end_time", search_end_time)
+
                 for col in crypto.collections:
                     if search_start_time <= col.time < search_end_time:
                         total += col.price
                         count += 1
                 avr = 0 if count == 0 else total / count
                 crypto.collection_avr_prices_in_hours.append(avr)
-            print(crypto.asset)
+            print("avarage prices: ", crypto.asset)
             for col in crypto.collection_avr_prices_in_hours:
                 print(col)
 
