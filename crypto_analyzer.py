@@ -6,7 +6,7 @@ from CollectionType import CollectionType
 
 #Crypto Settings
 # İzlmek istediğim cryptolar
-
+#           varlık adı, miktarı
 my_assets = [["ETH",  0.3],
              ["BTC",  0.1],
              ["DOGE", 500],
