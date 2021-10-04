@@ -16,15 +16,16 @@ class Crypto():
         self.collection_max_price = None
         self.collection_avr_prices_in_hours = []
         self.collection_prices_diff_in_hours = []
-
-#crypto listesi
-my_cryptos = []
+        self.collection_prices_diff_perc = []
 
 # Mongo client Oluşturulur
 mongoClient = MongoConnector(db_name="crypto_db", collection_name="crypto_series2", host="mongodb://localhost:27017/")
 
 class DataAnalysis():
-    def __init__(self):
+    def __init__(self, assets):
+        # crypto listesi
+        self.my_cryptos = []
+        self.my_assets = assets
         pass
 
     def analysis_process(self):
@@ -40,19 +41,24 @@ class DataAnalysis():
         self.find_avarage_prices_diff_in_hours()
 
     def find_avarage_prices_diff_in_hours(self):
-        diffrences = []
-        for crypto in my_cryptos:
+        for crypto in self.my_cryptos:
+            diffrences = []
+            print("avarage prices diffrences: ", crypto.asset)
             avr_prices = crypto.collection_avr_prices_in_hours
             for ind in range(len(avr_prices)-1):
-                diffrences.append(avr_prices[ind+1] - avr_prices[ind])
-            crypto.collection_prices_diff_in_hours = avr_prices
-            print("avarage prices diffrences: ", crypto.asset)
+                diff = avr_prices[ind+1] - avr_prices[ind]
+                diffrences.append(diff)
+                diff_perc = 0 if avr_prices[ind] == 0 else diff / avr_prices[ind] * 100
+                crypto.collection_prices_diff_perc.append(diff_perc)
+            crypto.collection_prices_diff_in_hours = diffrences
             for col in crypto.collection_prices_diff_in_hours:
-                print(col)
+                print(crypto.asset, " diff: ", col)
+            for col in crypto.collection_prices_diff_perc:
+                print(crypto.asset, " diff_perc: ", col)
 
 
     def find_avarage_prices_in_hours(self):
-        for crypto in my_cryptos:
+        for crypto in self.my_cryptos:
             for hour in range(24):
                 total = 0
                 count = 0
@@ -74,17 +80,17 @@ class DataAnalysis():
 
     def create_crypto_list(self):
         for asset in my_assets:
-            my_cryptos.append(Crypto(asset))
+            self.my_cryptos.append(Crypto(asset))
 
     def get_crypto_collection_last_hours(self, hours):
-        for crypto in my_cryptos:
+        for crypto in self.my_cryptos:
             crypto.collections = mongoClient.get_crypto_data_by_asset_last_hours(asset=crypto.asset, hours=hours)
             # print(crypto.asset)
             # for col in crypto.collections:
             #     print(col.time, col.price)
 
     def find_out_min_max_prices(self):
-        for crypto in my_cryptos:
+        for crypto in self.my_cryptos:
             for col in crypto.collections:
                 if crypto.collection_min_price == None:
                     crypto.collection_min_price = col.price
@@ -102,7 +108,7 @@ class DataAnalysis():
 db_result = mongoClient.connect()
 
 if db_result:
-    dataAnalysis = DataAnalysis()
+    dataAnalysis = DataAnalysis(assets=my_assets)
     # Analiz İşlemleri
     dataAnalysis.analysis_process()
 
