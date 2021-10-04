@@ -6,12 +6,18 @@ from CollectionType import CollectionType
 
 #Crypto Settings
 # İzlmek istediğim cryptolar
-my_assets = ["ETH", "BTC", "DOGE", "ATOM", "FIL"]
+
+my_assets = [["ETH",  0.3],
+             ["BTC",  0.1],
+             ["DOGE", 500],
+             ["ATOM",  10],
+             ["FIL",   10]]
 
 class Crypto():
-    def __init__(self, asset):
+    def __init__(self, asset, quantity):
         self.asset = asset
-        self.collections = [CollectionType]
+        self.quantity = quantity
+        self.collections = []
         self.collection_min_price = None
         self.collection_max_price = None
         self.collection_avr_prices_in_hours = []
@@ -25,6 +31,7 @@ class DataAnalysis():
     def __init__(self, assets):
         # crypto listesi
         self.my_cryptos = []
+        self.my_cryptos_usd_worth = Crypto("total", 0)
         self.my_assets = assets
         pass
 
@@ -33,12 +40,24 @@ class DataAnalysis():
         self.create_crypto_list()
         # Crypto ların son 24 saatlik verisi çekilir
         self.get_crypto_collection_last_hours(24)
+        # Crypto ların toplam USD değerleri hesaplanır
+        self.calculate_cryptos_total_worth()
         # Crypto lar için min ve max tutarlar bulunur
         self.find_out_min_max_prices()
         # Crypto lar için Son 24 saat içindeki saatlik ortalama değerleri bulunur
         self.find_avarage_prices_in_hours()
         # Crypto lar için Son 24 saat içindeki saatlik ortalama değer farkları bulunur
         self.find_avarage_prices_diff_in_hours()
+
+    def calculate_cryptos_total_worth(self):
+        for ind in range(len(self.my_cryptos[0].collections)):
+            total_price = 0
+            for crypto in self.my_cryptos:
+                total_price += crypto.collections[ind].price * crypto.quantity
+            collection_type = CollectionType(time=self.my_cryptos[0].collections[ind].time, price=total_price)
+            self.my_cryptos_usd_worth.collections.append(collection_type)
+        for col in self.my_cryptos_usd_worth.collections:
+            print("total_usd: ", col.time, col.price)
 
     def find_avarage_prices_diff_in_hours(self):
         for crypto in self.my_cryptos:
@@ -80,7 +99,7 @@ class DataAnalysis():
 
     def create_crypto_list(self):
         for asset in my_assets:
-            self.my_cryptos.append(Crypto(asset))
+            self.my_cryptos.append(Crypto(asset=asset[0], quantity=asset[1]))
 
     def get_crypto_collection_last_hours(self, hours):
         for crypto in self.my_cryptos:
