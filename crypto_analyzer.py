@@ -4,15 +4,6 @@ import threading
 from datetime import datetime, timezone, timedelta
 from CollectionType import CollectionType
 
-#Crypto Settings
-# İzlmek istediğim cryptolar
-#           varlık adı, miktarı
-my_assets = [["ETH",  0.3],
-             ["BTC",  0.1],
-             ["DOGE", 500],
-             ["ATOM",  10],
-             ["FIL",   10]]
-
 class Crypto():
     def __init__(self, asset, quantity):
         self.asset = asset
@@ -24,18 +15,16 @@ class Crypto():
         self.collection_prices_diff_in_hours = []
         self.collection_prices_diff_perc = []
 
-# Mongo client Oluşturulur
-mongoClient = MongoConnector(db_name="crypto_db", collection_name="crypto_series2", host="mongodb://localhost:27017/")
-
 class DataAnalysis():
-    def __init__(self, assets):
+    def __init__(self, assets, mongoClient):
         # crypto listesi
+        self.mongoClient = mongoClient
         self.my_cryptos = []
         self.my_cryptos_usd_worth = Crypto("total", 0)
         self.my_assets = assets
-        pass
 
     def analysis_process(self):
+        print("analysis_process giris")
         # Crypto listesi yaratılır
         self.create_crypto_list()
         # Crypto ların son 24 saatlik verisi çekilir
@@ -98,12 +87,12 @@ class DataAnalysis():
         return datetime.now() + timedelta(hours=hours)
 
     def create_crypto_list(self):
-        for asset in my_assets:
+        for asset in self.my_assets:
             self.my_cryptos.append(Crypto(asset=asset[0], quantity=asset[1]))
 
     def get_crypto_collection_last_hours(self, hours):
         for crypto in self.my_cryptos:
-            crypto.collections = mongoClient.get_crypto_data_by_asset_last_hours(asset=crypto.asset, hours=hours)
+            crypto.collections = self.mongoClient.get_crypto_data_by_asset_last_hours(asset=crypto.asset, hours=hours)
             # print(crypto.asset)
             # for col in crypto.collections:
             #     print(col.time, col.price)
@@ -123,13 +112,6 @@ class DataAnalysis():
             print("crypto.collection_max_price:", crypto.collection_max_price)
             print("crypto.collection_min_price", crypto.collection_min_price)
 
-#Baslangic mongo db bağlantısı yapılır
-db_result = mongoClient.connect()
-
-if db_result:
-    dataAnalysis = DataAnalysis(assets=my_assets)
-    # Analiz İşlemleri
-    dataAnalysis.analysis_process()
 
 
 
