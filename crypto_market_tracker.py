@@ -25,7 +25,7 @@ data_collect_cycle_time_sec = 120
 data_analysis_cycle_time_sec = 150
 
 # Mongo client Oluşturulur
-mongoClient = MongoConnector(db_name="crypto_db", collection_name="crypto_series2", host="mongodb://localhost:27017/")
+mongoClient = MongoConnector(db_name="crypto_db", host="mongodb://localhost:27017/")
 
 
 class CryptoTracker(object):

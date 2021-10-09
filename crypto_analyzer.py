@@ -14,6 +14,9 @@ class Crypto():
         self.collection_avr_prices_in_hours = []
         self.collection_prices_diff_in_hours = []
         self.collection_prices_diff_perc = []
+        self.last_price = None
+        self.first_price = None
+        self.diff_inn_24_hours_perc = None
 
 class DataAnalysis():
     def __init__(self, assets, mongoClient):
@@ -22,6 +25,8 @@ class DataAnalysis():
         self.my_cryptos = []
         self.my_cryptos_usd_worth = Crypto("total", 0)
         self.my_assets = assets
+        self.max_increased_perc_in_24_hours = 0
+        self.max_decreased_perc_in_24_hours = 0
 
     def analysis_process(self):
         print("analysis_process giris")
@@ -37,6 +42,22 @@ class DataAnalysis():
         self.find_avarage_prices_in_hours()
         # Crypto lar için Son 24 saat içindeki saatlik ortalama değer farkları bulunur
         self.find_avarage_prices_diff_in_hours()
+        # İzlenen crypto varlıkları mongo db ye yazılır
+        self.add_assets_info_to_monge_db()
+
+
+    def add_assets_info_to_monge_db(self):
+        asset_list = []
+        for crypto in self.my_cryptos:
+            asset_list.append({
+                "asset": crypto.asset,
+                "quantity": crypto.quantity,
+                "worth": crypto.last_price * crypto.quantity,
+                "last_price": crypto.last_price,
+                "is_most_increased": self.max_increased_perc_in_24_hours == crypto.diff_inn_24_hours_perc,
+                "is_most_decreased": self.max_decreased_perc_in_24_hours == crypto.diff_inn_24_hours_perc
+            })
+        self.mongoClient.add_assets(asset_list)
 
     def calculate_cryptos_total_worth(self):
         for ind in range(len(self.my_cryptos[0].collections)):
@@ -45,8 +66,8 @@ class DataAnalysis():
                 total_price += crypto.collections[ind].price * crypto.quantity
             collection_type = CollectionType(time=self.my_cryptos[0].collections[ind].time, price=total_price)
             self.my_cryptos_usd_worth.collections.append(collection_type)
-        for col in self.my_cryptos_usd_worth.collections:
-            print("total_usd: ", col.time, col.price)
+        # for col in self.my_cryptos_usd_worth.collections:
+        #     print("total_usd: ", col.time, col.price)
 
     def find_avarage_prices_diff_in_hours(self):
         for crypto in self.my_cryptos:
@@ -59,10 +80,10 @@ class DataAnalysis():
                 diff_perc = 0 if avr_prices[ind] == 0 else diff / avr_prices[ind] * 100
                 crypto.collection_prices_diff_perc.append(diff_perc)
             crypto.collection_prices_diff_in_hours = diffrences
-            for col in crypto.collection_prices_diff_in_hours:
-                print(crypto.asset, " diff: ", col)
-            for col in crypto.collection_prices_diff_perc:
-                print(crypto.asset, " diff_perc: ", col)
+            # for col in crypto.collection_prices_diff_in_hours:
+            #     print(crypto.asset, " diff: ", col)
+            # for col in crypto.collection_prices_diff_perc:
+            #     print(crypto.asset, " diff_perc: ", col)
 
 
     def find_avarage_prices_in_hours(self):
@@ -80,8 +101,8 @@ class DataAnalysis():
                 avr = 0 if count == 0 else total / count
                 crypto.collection_avr_prices_in_hours.append(avr)
             print("avarage prices: ", crypto.asset)
-            for col in crypto.collection_avr_prices_in_hours:
-                print(col)
+            # for col in crypto.collection_avr_prices_in_hours:
+            #     print(col)
 
     def add_hours_to_now(self, hours):
         return datetime.now() + timedelta(hours=hours)
@@ -93,6 +114,16 @@ class DataAnalysis():
     def get_crypto_collection_last_hours(self, hours):
         for crypto in self.my_cryptos:
             crypto.collections = self.mongoClient.get_crypto_data_by_asset_last_hours(asset=crypto.asset, hours=hours)
+            if crypto.collections is not None and len(crypto.collections) > 0:
+                crypto.last_price = crypto.collections[-1].price
+                crypto.first_price = crypto.collections[0].price
+                crypto.diff_inn_24_hours_perc = (crypto.last_price - crypto.first_price) / crypto.first_price * 100
+                if crypto.diff_inn_24_hours_perc > self.max_increased_perc_in_24_hours:
+                    self.max_increased_perc_in_24_hours = crypto.diff_inn_24_hours_perc
+                if crypto.diff_inn_24_hours_perc < self.max_decreased_perc_in_24_hours:
+                    self.max_decreased_perc_in_24_hours = crypto.diff_inn_24_hours_perc
+                print("first", crypto.asset, crypto.first_price, crypto.collections[0].time, crypto.diff_inn_24_hours_perc)
+                print("last", crypto.asset, crypto.last_price, crypto.collections[-1].time, crypto.diff_inn_24_hours_perc)
             # print(crypto.asset)
             # for col in crypto.collections:
             #     print(col.time, col.price)
@@ -100,7 +131,7 @@ class DataAnalysis():
     def find_out_min_max_prices(self):
         for crypto in self.my_cryptos:
             for col in crypto.collections:
-                if crypto.collection_min_price == None:
+                if crypto.collection_min_price is None:
                     crypto.collection_min_price = col.price
                     crypto.collection_max_price = col.price
                 else:
