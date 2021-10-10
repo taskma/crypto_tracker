@@ -26,6 +26,10 @@ class DataAnalysis():
         self.my_assets = assets
         self.max_increased_perc_in_24_hours = 0
         self.max_decreased_perc_in_24_hours = 0
+        self.max_increased_asset_in_24_hours = None
+        self.max_decreased_asset_in_24_hours = None
+        #En çok dalgalanma olan varlık
+        self.the_most_fluctuationed_asset_in_24_hours = None
 
     def analysis_process(self):
         print("analysis_process giris")
@@ -33,7 +37,7 @@ class DataAnalysis():
         self.create_crypto_list()
         # Crypto ların son 24 saatlik verisi çekilir
         self.get_crypto_collection_last_hours(24)
-        # Crypto lar için min ve max tutarlar bulunur
+        # Crypto lar için min ve max tutarlar, ve en çok dalgalanma olan varlık bulunur
         self.find_out_min_max_prices()
         # Crypto lar için Son 24 saat içindeki saatlik ortalama değerleri bulunur
         self.find_avarage_prices_in_hours()
@@ -106,10 +110,13 @@ class DataAnalysis():
                 crypto.last_price = crypto.collections[-1].price
                 crypto.first_price = crypto.collections[0].price
                 crypto.diff_inn_24_hours_perc = (crypto.last_price - crypto.first_price) / crypto.first_price * 100
+                # En yüksek artış ve azlama oranları bulunur
                 if crypto.diff_inn_24_hours_perc > self.max_increased_perc_in_24_hours:
                     self.max_increased_perc_in_24_hours = crypto.diff_inn_24_hours_perc
+                    self.max_increased_asset_in_24_hours = crypto.asset
                 if crypto.diff_inn_24_hours_perc < self.max_decreased_perc_in_24_hours:
                     self.max_decreased_perc_in_24_hours = crypto.diff_inn_24_hours_perc
+                    self.max_decreased_asset_in_24_hours = crypto.asset
                 print("first", crypto.asset, crypto.first_price, crypto.collections[0].time, crypto.diff_inn_24_hours_perc)
                 print("last", crypto.asset, crypto.last_price, crypto.collections[-1].time, crypto.diff_inn_24_hours_perc)
             # print(crypto.asset)
@@ -117,6 +124,8 @@ class DataAnalysis():
             #     print(col.time, col.price)
 
     def find_out_min_max_prices(self):
+        max_diff_asset_perc = 0
+        max_diff_asset = None
         for crypto in self.my_cryptos:
             for col in crypto.collections:
                 if crypto.collection_min_price is None:
@@ -130,6 +139,12 @@ class DataAnalysis():
             print(crypto.asset)
             print("crypto.collection_max_price:", crypto.collection_max_price)
             print("crypto.collection_min_price", crypto.collection_min_price)
+            diff = crypto.collection_max_price - crypto.collection_min_price
+            diff_perc = diff / crypto.first_price * 100
+            if diff_perc > max_diff_asset_perc:
+                max_diff_asset_perc = diff_perc
+                max_diff_asset = crypto.asset
+        self.the_most_fluctuationed_asset_in_24_hours = max_diff_asset
 
 
 
