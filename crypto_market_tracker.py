@@ -11,11 +11,11 @@ exchange = "COINBASE"
 #Crypto Settings
 # İzlmek istediğim cryptolar
 #           varlık adı, miktarı
-my_assets = [["ETH",  0.3],
+my_assets = [["ETH",  0.8],
              ["BTC",  0.1],
-             ["DOGE", 500],
-             ["ATOM",  10],
-             ["FIL",   10]]
+             ["DOGE", 5000],
+             ["ATOM",  30],
+             ["FIL",   30]]
 
 #API Settings
 CRYPTINGUP_URL_BASE = "https://www.cryptingup.com/api/"
@@ -48,18 +48,30 @@ class CryptoTracker(object):
         asset_datas = []
         ts = datetime.now()
         #Market datası içinde cyrptoları ara
+        total_amount = 0
         for asset in my_assets:
             asset_name = asset[0]
-            asset_data = self.find_asset_in_market(markets, asset_name, ts)
+            asset_data, price = self.find_asset_in_market(markets, asset_name, ts)
+            total_amount += price * asset[1]
             print("asset_data:", asset_data)
-            asset_datas.append(self.find_asset_in_market(markets, asset_name, ts))
+            asset_datas.append(asset_data)
 
         #Cryptolar USD karşılıkları Mongo db ye yazılır
         mongoClient.add_cryptos(asset_datas)
 
+        # Toplam varlık bilgisi mongodb ye gönderiliyor
+        mongoClient.add_total_asset(self.get_total_asset_json(ts, total_amount))
+
         #Timer tekrar kurulur
         t = threading.Timer(data_collect_cycle_time_sec, self.timer_data_collect_process)
         t.start()
+
+    def get_total_asset_json(self, time, total_price):
+        return {
+                "ts": time,
+                "metadata": {"asset": "total_usd", "symbol": "worth-usd"},
+                "price": total_price
+        }
 
     def timer_crypto_analysis_process(self):
         dataAnalysis = DataAnalysis(assets=my_assets, mongoClient=mongoClient)
@@ -76,7 +88,8 @@ class CryptoTracker(object):
                         "ts": ts,
                         "metadata": {"asset": asset, "symbol": market["symbol"]},
                         "price": market["price"]
-                    }
+                    },
+                    market["price"]
                 )
 
 

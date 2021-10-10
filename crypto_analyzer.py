@@ -23,7 +23,6 @@ class DataAnalysis():
         # crypto listesi
         self.mongoClient = mongoClient
         self.my_cryptos = []
-        self.my_cryptos_usd_worth = Crypto("total", 0)
         self.my_assets = assets
         self.max_increased_perc_in_24_hours = 0
         self.max_decreased_perc_in_24_hours = 0
@@ -34,8 +33,6 @@ class DataAnalysis():
         self.create_crypto_list()
         # Crypto ların son 24 saatlik verisi çekilir
         self.get_crypto_collection_last_hours(24)
-        # Crypto ların toplam USD değerleri hesaplanır
-        self.calculate_cryptos_total_worth()
         # Crypto lar için min ve max tutarlar bulunur
         self.find_out_min_max_prices()
         # Crypto lar için Son 24 saat içindeki saatlik ortalama değerleri bulunur
@@ -48,6 +45,7 @@ class DataAnalysis():
 
     def add_assets_info_to_monge_db(self):
         asset_list = []
+        # Genel varlık bilgileri mongodb ye gönderiliyor
         for crypto in self.my_cryptos:
             asset_list.append({
                 "asset": crypto.asset,
@@ -59,20 +57,10 @@ class DataAnalysis():
             })
         self.mongoClient.add_assets(asset_list)
 
-    def calculate_cryptos_total_worth(self):
-        for ind in range(len(self.my_cryptos[0].collections)):
-            total_price = 0
-            for crypto in self.my_cryptos:
-                total_price += crypto.collections[ind].price * crypto.quantity
-            collection_type = CollectionType(time=self.my_cryptos[0].collections[ind].time, price=total_price)
-            self.my_cryptos_usd_worth.collections.append(collection_type)
-        # for col in self.my_cryptos_usd_worth.collections:
-        #     print("total_usd: ", col.time, col.price)
-
     def find_avarage_prices_diff_in_hours(self):
         for crypto in self.my_cryptos:
             diffrences = []
-            print("avarage prices diffrences: ", crypto.asset)
+            # print("avarage prices diffrences: ", crypto.asset)
             avr_prices = crypto.collection_avr_prices_in_hours
             for ind in range(len(avr_prices)-1):
                 diff = avr_prices[ind+1] - avr_prices[ind]
@@ -100,7 +88,7 @@ class DataAnalysis():
                         count += 1
                 avr = 0 if count == 0 else total / count
                 crypto.collection_avr_prices_in_hours.append(avr)
-            print("avarage prices: ", crypto.asset)
+            # print("avarage prices: ", crypto.asset)
             # for col in crypto.collection_avr_prices_in_hours:
             #     print(col)
 

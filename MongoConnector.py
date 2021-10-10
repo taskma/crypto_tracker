@@ -30,9 +30,13 @@ class MongoConnector(object):
         print("Data inserted with record ids", rec_id1)
 
     def add_assets(self, data):
-        print("data:", data)
+        # print("data:", data)
         self.asset_col.drop()
         rec_id1 = self.asset_col.insert_many(data)
+        print("Data inserted with record ids", rec_id1)
+
+    def add_total_asset(self, data):
+        rec_id1 = self.collection.insert_one(data)
         print("Data inserted with record ids", rec_id1)
 
     def get_crypto_data_by_asset_last_hours(self, asset, hours):
