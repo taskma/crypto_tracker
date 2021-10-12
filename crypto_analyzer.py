@@ -4,6 +4,7 @@ import threading
 from datetime import datetime, timezone, timedelta
 from CollectionType import CollectionType
 
+
 class Crypto():
     def __init__(self, asset, quantity, goal_price):
         self.asset = asset
@@ -19,6 +20,7 @@ class Crypto():
         self.first_price = None
         self.one_hour_ago_price = None
         self.diff_inn_24_hours_perc = None
+
 
 class DataAnalysis():
     def __init__(self, assets, mongoClient):
@@ -69,7 +71,7 @@ class DataAnalysis():
         for crypto in self.my_cryptos:
             if self.max_decreased_asset_in_24_hours == crypto.asset:
                 self.max_decreased_asset_moments_in_24_hours = crypto.collection_prices_diff_perc
-            if self.the_most_fluctuationed_asset_moments_in_24_hours == crypto.asset:
+            if self.the_most_fluctuationed_asset_in_24_hours == crypto.asset:
                 self.the_most_fluctuationed_asset_moments_in_24_hours = crypto.collection_prices_diff_perc
 
     def find_goal_achived_assets(self):
@@ -87,16 +89,43 @@ class DataAnalysis():
                 self.decreased_10_perc_assets_in_1_hour.append(crypto.asset)
 
     def add_alarm_info_to_monge_db(self):
+        print("self.max_decreased_asset_in_24_hours:", self.max_decreased_asset_in_24_hours)
+        print("self.the_most_fluctuationed_asset_in_24_hours", self.the_most_fluctuationed_asset_in_24_hours)
         alarm_info = {
-            "decreased_10_perc_assets_in_24_hours": self.decreased_10_perc_assets_in_24_hours,
-            "decreased_10_perc_assets_in_1_hour ": self.decreased_10_perc_assets_in_1_hour,
-            "goal_achived_assets": self.goal_achived_assets,
-            "max_decreased_asset_in_24_hours ": self.max_decreased_asset_in_24_hours,
-            "max_decreased_asset_moments_in_24_hours": self.max_decreased_asset_moments_in_24_hours ,
-            "the_most_fluctuationed_asset_in_24_hours ": self.the_most_fluctuationed_asset_in_24_hours ,
-            "the_most_fluctuationed_asset_moments_in_24_hours": self.the_most_fluctuationed_asset_moments_in_24_hours
+            "decreased_10_perc_assets_in_24_hours": self.create_assets_json_array(
+                self.decreased_10_perc_assets_in_24_hours),
+            "decreased_10_perc_assets_in_1_hour": self.create_assets_json_array(
+                self.decreased_10_perc_assets_in_1_hour),
+            "goal_achived_assets": self.create_assets_json_array(self.goal_achived_assets),
+            "max_decreased_asset_in_24_hours": self.max_decreased_asset_in_24_hours,
+            "max_decreased_asset_moments_in_24_hours": self.create_moments_json_array(
+                self.max_decreased_asset_moments_in_24_hours),
+            "the_most_fluctuationed_asset_in_24_hours": self.the_most_fluctuationed_asset_in_24_hours,
+            "the_most_fluctuationed_asset_moments_in_24_hours": self.create_moments_json_array(
+                self.the_most_fluctuationed_asset_moments_in_24_hours)
         }
         self.mongoClient.add_alarm_info(alarm_info)
+
+    def create_assets_json_array(self, data_array):
+        json_array = []
+        for data in data_array:
+            json_array.append({
+                "asset": data
+            })
+        print("json_array", json_array)
+        return json_array
+
+    def create_moments_json_array(self, data_array):
+        json_array = []
+        counter = 0
+        for data in data_array:
+            counter += 1
+            json_array.append({
+                "hour": counter,
+                "diff_percentage": data
+            })
+        print("json_array", json_array)
+        return json_array
 
     def add_assets_info_to_monge_db(self):
         asset_list = []
@@ -117,8 +146,8 @@ class DataAnalysis():
             diffrences = []
             # print("avarage prices diffrences: ", crypto.asset)
             avr_prices = crypto.collection_avr_prices_in_hours
-            for ind in range(len(avr_prices)-1):
-                diff = avr_prices[ind+1] - avr_prices[ind]
+            for ind in range(len(avr_prices) - 1):
+                diff = avr_prices[ind + 1] - avr_prices[ind]
                 diffrences.append(diff)
                 diff_perc = 0 if avr_prices[ind] == 0 else diff / avr_prices[ind] * 100
                 crypto.collection_prices_diff_perc.append(diff_perc)
@@ -128,14 +157,13 @@ class DataAnalysis():
             # for col in crypto.collection_prices_diff_perc:
             #     print(crypto.asset, " diff_perc: ", col)
 
-
     def find_avarage_prices_in_hours(self):
         for crypto in self.my_cryptos:
             for hour in range(24):
                 total = 0
                 count = 0
-                search_start_time = self.add_hours_to_now(hours=-24+hour)
-                search_end_time = self.add_hours_to_now(hours=-24+hour+1)
+                search_start_time = self.add_hours_to_now(hours=-24 + hour)
+                search_end_time = self.add_hours_to_now(hours=-24 + hour + 1)
 
                 for col in crypto.collections:
                     if search_start_time <= col.time < search_end_time:
@@ -143,7 +171,7 @@ class DataAnalysis():
                         count += 1
                 avr = 0 if count == 0 else total / count
                 crypto.collection_avr_prices_in_hours.append(avr)
-            last_one_hour_index = len(crypto.collection_avr_prices_in_hours) -1
+            last_one_hour_index = len(crypto.collection_avr_prices_in_hours) - 1
             crypto.one_hour_ago_price = crypto.collection_avr_prices_in_hours[last_one_hour_index]
             # print("avarage prices: ", crypto.asset)
             # for col in crypto.collection_avr_prices_in_hours:
@@ -170,8 +198,10 @@ class DataAnalysis():
                 if crypto.diff_inn_24_hours_perc < self.max_decreased_perc_in_24_hours:
                     self.max_decreased_perc_in_24_hours = crypto.diff_inn_24_hours_perc
                     self.max_decreased_asset_in_24_hours = crypto.asset
-                print("first", crypto.asset, crypto.first_price, crypto.collections[0].time, crypto.diff_inn_24_hours_perc)
-                print("last", crypto.asset, crypto.last_price, crypto.collections[-1].time, crypto.diff_inn_24_hours_perc)
+                print("first", crypto.asset, crypto.first_price, crypto.collections[0].time,
+                      crypto.diff_inn_24_hours_perc)
+                print("last", crypto.asset, crypto.last_price, crypto.collections[-1].time,
+                      crypto.diff_inn_24_hours_perc)
             # print(crypto.asset)
             # for col in crypto.collections:
             #     print(col.time, col.price)
@@ -198,7 +228,3 @@ class DataAnalysis():
                 max_diff_asset_perc = diff_perc
                 max_diff_asset = crypto.asset
         self.the_most_fluctuationed_asset_in_24_hours = max_diff_asset
-
-
-
-
