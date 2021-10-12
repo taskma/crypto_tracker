@@ -10,12 +10,12 @@ from datetime import datetime, timezone
 exchange = "COINBASE"
 #Crypto Settings
 # İzlmek istediğim cryptolar
-#           varlık adı, miktarı
-my_assets = [["ETH",  0.8],
-             ["BTC",  0.1],
-             ["DOGE", 5000],
-             ["ATOM",  30],
-             ["FIL",   30]]
+#             Varlık adı, Miktarı  Hedef Değer
+my_assets = [["ETH",      0.8,     3505],
+             ["BTC",      0.1,     56350],
+             ["DOGE",     5000,    0.224],
+             ["ATOM",     30,      33.8],
+             ["FIL",      30,      70]]
 
 #API Settings
 CRYPTINGUP_URL_BASE = "https://www.cryptingup.com/api/"

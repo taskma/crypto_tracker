@@ -10,6 +10,7 @@ class MongoConnector(object):
         self.conn = None
         self.collection = None
         self.asset_col = None
+        self.alarm_info = None
         self.db = None
 
     def connect(self):
@@ -18,6 +19,7 @@ class MongoConnector(object):
             self.db = conn[self.db_name]
             self.collection = self.db["crypto_series2"]
             self.asset_col = self.db["assets"]
+            self.alarm_info = self.db["alarm_info"]
         except:
             print("MongoDB bağlanılamadı")
             return False
@@ -37,6 +39,11 @@ class MongoConnector(object):
 
     def add_total_asset(self, data):
         rec_id1 = self.collection.insert_one(data)
+        print("Data inserted with record ids", rec_id1)
+
+    def add_alarm_info(self, data):
+        self.alarm_info.drop()
+        rec_id1 = self.alarm_info.insert_one(data)
         print("Data inserted with record ids", rec_id1)
 
     def get_crypto_data_by_asset_last_hours(self, asset, hours):
