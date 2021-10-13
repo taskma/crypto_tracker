@@ -37,9 +37,11 @@ class DataAnalysis():
         self.max_increased_asset_in_24_hours = None
         # Son 24 saat içerisinde en fazla kayıp olan varlık ve en çok kayıp olan an
         self.max_decreased_asset_in_24_hours = None
+        self.max_decreased_asset_max_decreased_moment = None
         self.max_decreased_asset_moments_in_24_hours = []
         # Son 24 saat içerisinde fiyat değişimi olarak en fazla dalgalanma gerçekleşen varlık ve en çok kayıp olan an
         self.the_most_fluctuationed_asset_in_24_hours = None
+        self.the_most_fluctuationed_asset_max_decreased_moment = None
         self.the_most_fluctuationed_asset_moments_in_24_hours = []
         # Fiyat değişimi son 24 saat içinde %10 oranında düşen varlıklar
         self.decreased_10_perc_assets_in_24_hours = []
@@ -75,10 +77,15 @@ class DataAnalysis():
 
     def find_decreased_asset_moments(self):
         for crypto in self.my_cryptos:
+            diff_perc = crypto.collection_prices_diff_perc
+            # en çok azalan saat ve azalma miktarı bulunur
             if self.max_decreased_asset_in_24_hours == crypto.asset:
-                self.max_decreased_asset_moments_in_24_hours = crypto.collection_prices_diff_perc
+                self.max_decreased_asset_moments_in_24_hours = diff_perc
+                self.max_decreased_asset_max_decreased_moment = [min(diff_perc), diff_perc.index(min(diff_perc))]
             if self.the_most_fluctuationed_asset_in_24_hours == crypto.asset:
-                self.the_most_fluctuationed_asset_moments_in_24_hours = crypto.collection_prices_diff_perc
+                self.the_most_fluctuationed_asset_moments_in_24_hours = diff_perc
+                self.the_most_fluctuationed_asset_max_decreased_moment = [min(diff_perc),
+                                                                          diff_perc.index(min(diff_perc))]
 
     def find_goal_achived_assets(self):
         for crypto in self.my_cryptos:
@@ -88,13 +95,13 @@ class DataAnalysis():
     def find_decreased_10_perc_assets(self):
         for crypto in self.my_cryptos:
             # son 24 saat
-            #unutma
+            # unutma
             if ((crypto.last_price - crypto.first_price) / crypto.first_price * 100) <= -10:
-            # if ((crypto.last_price - crypto.first_price) / crypto.first_price * 100) <= -1:
+                # if ((crypto.last_price - crypto.first_price) / crypto.first_price * 100) <= -1:
                 self.decreased_10_perc_assets_in_24_hours.append(crypto.asset)
             # son 1 saat
             if ((crypto.last_price - crypto.one_hour_ago_price) / crypto.one_hour_ago_price * 100) <= -10:
-            # if ((crypto.last_price - crypto.one_hour_ago_price) / crypto.one_hour_ago_price * 100) <= -1:
+                # if ((crypto.last_price - crypto.one_hour_ago_price) / crypto.one_hour_ago_price * 100) <= -1:
                 self.decreased_10_perc_assets_in_1_hour.append(crypto.asset)
 
     def add_alarm_info_to_monge_db(self):
@@ -107,12 +114,13 @@ class DataAnalysis():
                 self.decreased_10_perc_assets_in_1_hour),
             "goal_achived_assets": self.create_assets_json_array(self.goal_achived_assets),
             "max_decreased_asset_in_24_hours": self.max_decreased_asset_in_24_hours,
-            "max_decreased_asset_moments_in_24_hours": self.create_moments_json_array(
-                self.max_decreased_asset_moments_in_24_hours),
             "the_most_fluctuationed_asset_in_24_hours": self.the_most_fluctuationed_asset_in_24_hours,
-            "the_most_fluctuationed_asset_moments_in_24_hours": self.create_moments_json_array(
-                self.the_most_fluctuationed_asset_moments_in_24_hours)
         }
+
+        self.mongoClient.add_most_decreased_asset_moments(
+            self.create_moments_json_array(self.max_decreased_asset_moments_in_24_hours))
+        self.mongoClient.add_most_fluctuationed_asset_moments(
+            self.create_moments_json_array(self.the_most_fluctuationed_asset_moments_in_24_hours))
         self.mongoClient.add_alarm_info(alarm_info)
 
     def invoke_alarm_to_IFTT(self):
@@ -124,16 +132,28 @@ class DataAnalysis():
                                                   "Fiyat değişimi son  1 saat içinde %10 oranında düşen varlıklar; {}",
                                                   alarm_message)
         alarm_message = self.add_to_alarm_message(self.goal_achived_assets,
-                                                  " Fiyat bilgisi hedef  değer üzerine çıkan varlıklar; {}",
+                                                  "24 saat içinde fiyat bilgisi hedef  değer üzerine çıkan varlıklar; {}",
                                                   alarm_message)
         if alarm_message != "":
+            alarm_message = self.add_moments_to_alarm_message(self.max_decreased_asset_in_24_hours,
+                                                              "Son 24 saat içerisinde en fazla kayıp olan varlık; {}, en büyük kaybın oluştuğu an {} saat öncedir.",
+                                                              self.max_decreased_asset_max_decreased_moment,
+                                                              alarm_message)
+            alarm_message = self.add_moments_to_alarm_message(self.the_most_fluctuationed_asset_in_24_hours,
+                                                              "Son 24 saat içerisinde fiyat değişimi olarak en fazla dalgalanma gerçekleşen olan varlık; {}, en büyük kaybın oluştuğu an {} saat öncedir.",
+                                                              self.the_most_fluctuationed_asset_max_decreased_moment,
+                                                              alarm_message)
             print("** IFTT Gönderiliyor.............................")
             self.iftt_client.sendWebHook(event_key="redash", value1=alarm_message)
-
 
     def add_to_alarm_message(self, data_array, new_message, alarm_message):
         if data_array is not None and len(data_array) > 0:
             alarm_message += new_message.format(str(data_array)) + "\n"
+        return alarm_message
+
+    def add_moments_to_alarm_message(self, asset, new_message, hour, alarm_message):
+        if asset is not None:
+            alarm_message += new_message.format(str(asset), 24 - int(hour[1])) + "\n"
         return alarm_message
 
     def create_assets_json_array(self, data_array):
@@ -151,7 +171,7 @@ class DataAnalysis():
         for data in data_array:
             counter += 1
             json_array.append({
-                "hour": counter,
+                "hour": 24 - counter,
                 "diff_percentage": data
             })
         print("json_array", json_array)

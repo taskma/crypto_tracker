@@ -12,6 +12,8 @@ class MongoConnector(object):
         self.asset_col = None
         self.alarm_info = None
         self.db = None
+        self.most_decreased_asset_moments = None
+        self.most_fluctuationed_asset_moments = None
 
     def connect(self):
         try:
@@ -20,11 +22,23 @@ class MongoConnector(object):
             self.collection = self.db["crypto_series2"]
             self.asset_col = self.db["assets"]
             self.alarm_info = self.db["alarm_info"]
+            self.most_decreased_asset_moments = self.db["most_decreased_moments"]
+            self.most_fluctuationed_asset_moments = self.db["most_fluctuationed_asset_moments"]
         except:
             print("MongoDB bağlanılamadı")
             return False
         print("MongoDB bağlantısı başarılı!!!")
         return True
+
+    def add_most_decreased_asset_moments(self, data):
+        self.most_decreased_asset_moments.drop()
+        rec_id1 = self.most_decreased_asset_moments.insert_many(data)
+        print("Data inserted with record ids", rec_id1)
+
+    def add_most_fluctuationed_asset_moments(self, data):
+        self.most_fluctuationed_asset_moments.drop()
+        rec_id1 = self.most_fluctuationed_asset_moments.insert_many(data)
+        print("Data inserted with record ids", rec_id1)
 
     def add_cryptos(self, data):
         # Insert Data
