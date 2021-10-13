@@ -3,6 +3,9 @@ from MongoConnector import MongoConnector
 import threading
 from datetime import datetime, timezone, timedelta
 from CollectionType import CollectionType
+from ifttApi import IFTTApi
+
+iftt_api_key = "**"
 
 
 class Crypto():
@@ -28,6 +31,7 @@ class DataAnalysis():
         self.mongoClient = mongoClient
         self.my_cryptos = []
         self.my_assets = assets
+        self.iftt_client = IFTTApi(api_key=iftt_api_key)
         self.max_increased_perc_in_24_hours = 0
         self.max_decreased_perc_in_24_hours = 0
         self.max_increased_asset_in_24_hours = None
@@ -66,6 +70,8 @@ class DataAnalysis():
         self.add_assets_info_to_monge_db()
         # Alarm ile ilgili bilgiler mongo db ye yazılır
         self.add_alarm_info_to_monge_db()
+        # Alarmlar IFTT e webhook ile gönderilerek, IFTT cep telefonu uygulamasından Alarm Notification alınması sağlanır
+        self.invoke_alarm_to_IFTT()
 
     def find_decreased_asset_moments(self):
         for crypto in self.my_cryptos:
@@ -82,10 +88,13 @@ class DataAnalysis():
     def find_decreased_10_perc_assets(self):
         for crypto in self.my_cryptos:
             # son 24 saat
+            #unutma
             if ((crypto.last_price - crypto.first_price) / crypto.first_price * 100) <= -10:
+            # if ((crypto.last_price - crypto.first_price) / crypto.first_price * 100) <= -1:
                 self.decreased_10_perc_assets_in_24_hours.append(crypto.asset)
             # son 1 saat
             if ((crypto.last_price - crypto.one_hour_ago_price) / crypto.one_hour_ago_price * 100) <= -10:
+            # if ((crypto.last_price - crypto.one_hour_ago_price) / crypto.one_hour_ago_price * 100) <= -1:
                 self.decreased_10_perc_assets_in_1_hour.append(crypto.asset)
 
     def add_alarm_info_to_monge_db(self):
@@ -105,6 +114,27 @@ class DataAnalysis():
                 self.the_most_fluctuationed_asset_moments_in_24_hours)
         }
         self.mongoClient.add_alarm_info(alarm_info)
+
+    def invoke_alarm_to_IFTT(self):
+        alarm_message = ""
+        alarm_message = self.add_to_alarm_message(self.decreased_10_perc_assets_in_24_hours,
+                                                  "Fiyat değişimi son  24 saat içinde %10 oranında düşen varlıklar; {}",
+                                                  alarm_message)
+        alarm_message = self.add_to_alarm_message(self.decreased_10_perc_assets_in_1_hour,
+                                                  "Fiyat değişimi son  1 saat içinde %10 oranında düşen varlıklar; {}",
+                                                  alarm_message)
+        alarm_message = self.add_to_alarm_message(self.goal_achived_assets,
+                                                  " Fiyat bilgisi hedef  değer üzerine çıkan varlıklar; {}",
+                                                  alarm_message)
+        if alarm_message != "":
+            print("** IFTT Gönderiliyor.............................")
+            self.iftt_client.sendWebHook(event_key="redash", value1=alarm_message)
+
+
+    def add_to_alarm_message(self, data_array, new_message, alarm_message):
+        if data_array is not None and len(data_array) > 0:
+            alarm_message += new_message.format(str(data_array)) + "\n"
+        return alarm_message
 
     def create_assets_json_array(self, data_array):
         json_array = []
