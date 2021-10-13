@@ -32,13 +32,15 @@ class MongoConnector(object):
 
     def add_most_decreased_asset_moments(self, data):
         self.most_decreased_asset_moments.drop()
-        rec_id1 = self.most_decreased_asset_moments.insert_many(data)
-        print("Data inserted with record ids", rec_id1)
+        if data is not None and len(data) > 0:
+            rec_id1 = self.most_decreased_asset_moments.insert_many(data)
+            print("Data inserted with record ids", rec_id1)
 
     def add_most_fluctuationed_asset_moments(self, data):
         self.most_fluctuationed_asset_moments.drop()
-        rec_id1 = self.most_fluctuationed_asset_moments.insert_many(data)
-        print("Data inserted with record ids", rec_id1)
+        if data is not None and len(data) > 0:
+            rec_id1 = self.most_fluctuationed_asset_moments.insert_many(data)
+            print("Data inserted with record ids", rec_id1)
 
     def add_cryptos(self, data):
         # Insert Data

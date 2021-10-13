@@ -87,6 +87,7 @@ class DataAnalysis():
                 self.the_most_fluctuationed_asset_max_decreased_moment = [min(diff_perc),
                                                                           diff_perc.index(min(diff_perc))]
 
+
     def find_goal_achived_assets(self):
         for crypto in self.my_cryptos:
             if crypto.last_price > crypto.goal_price:
@@ -221,6 +222,15 @@ class DataAnalysis():
                         count += 1
                 avr = 0 if count == 0 else total / count
                 crypto.collection_avr_prices_in_hours.append(avr)
+            collection = crypto.collection_avr_prices_in_hours[::-1]
+            last_not_empty_value = 0
+            for ind in range(len(collection)):
+                if collection[ind] != 0:
+                    last_not_empty_value = collection[ind]
+                elif collection[ind] == 0:
+                    collection[ind] = last_not_empty_value
+            crypto.collection_avr_prices_in_hours = collection[::-1]
+
             last_one_hour_index = len(crypto.collection_avr_prices_in_hours) - 1
             crypto.one_hour_ago_price = crypto.collection_avr_prices_in_hours[last_one_hour_index]
             # print("avarage prices: ", crypto.asset)
