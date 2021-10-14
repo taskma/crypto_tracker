@@ -1,0 +1,8 @@
+{
+    "collection": "alarm_info",
+    "query": {
+    },
+    "fields": {
+	    "decreased_10_perc_assets_in_24_hours": 1
+    }
+}

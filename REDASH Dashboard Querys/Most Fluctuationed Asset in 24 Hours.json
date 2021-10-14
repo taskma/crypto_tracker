@@ -1,0 +1,8 @@
+{
+    "collection": "alarm_info",
+    "query": {
+    },
+    "fields": {
+        "the_most_fluctuationed_asset_in_24_hours": 1
+    }
+}

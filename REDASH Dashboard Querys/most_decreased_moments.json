@@ -1,0 +1,9 @@
+{
+    "collection": "most_decreased_moments",
+    "query": {
+    },
+    "sort": [{
+		"name": "hour",
+		"direction": 1
+	}]
+}

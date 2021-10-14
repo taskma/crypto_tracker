@@ -1,0 +1,8 @@
+{
+    "collection": "alarm_info",
+    "query": {
+    },
+    "fields": {
+	    "max_decreased_asset_in_24_hours": 1
+    }
+}

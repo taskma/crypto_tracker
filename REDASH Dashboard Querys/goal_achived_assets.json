@@ -1,0 +1,8 @@
+{
+    "collection": "alarm_info",
+    "query": {
+    },
+    "fields": {
+	    "goal_achived_assets": 1
+    }
+}

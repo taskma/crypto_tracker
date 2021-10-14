@@ -1,0 +1,15 @@
+{
+    "collection": "crypto_series2",
+    "query": {
+        "ts": {
+			"$gt": {
+				"$humanTime": "24 hours ago"
+			}
+		},
+		"metadata.asset": "{{ most_decreased_asset }}"
+    },
+    "sort": [{
+		"name": "ts",
+		"direction": -1
+	}]
+}

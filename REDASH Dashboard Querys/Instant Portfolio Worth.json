@@ -1,0 +1,9 @@
+{
+    "collection": "assets",
+    "query": {
+    },
+    "fields": {
+	    "asset": 1,
+	    "worth": 1
+    }
+}

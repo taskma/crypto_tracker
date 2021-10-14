@@ -1,0 +1,9 @@
+{
+    "collection": "most_fluctuationed_asset_moments",
+    "query": {
+    },
+    "sort": [{
+		"name": "hour",
+		"direction": -1
+	}]
+}
