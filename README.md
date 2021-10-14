@@ -1,6 +1,6 @@
 # Data Engineer Projesi
 
-![alt text](https://github.com/taskma/crypto_tracker/blob/master/Images/technologies.png)
+![alt text](https://github.com/taskma/crypto_tracker/blob/master/Images/technolgies.png)
 
 # Proje Ayrıntılı Schema
 
