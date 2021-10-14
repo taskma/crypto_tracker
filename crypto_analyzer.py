@@ -88,7 +88,6 @@ class DataAnalysis():
                 self.the_most_fluctuationed_asset_max_decreased_moment = [min(diff_perc),
                                                                           diff_perc.index(min(diff_perc))]
 
-
     def find_goal_achived_assets(self):
         for crypto in self.my_cryptos:
             if crypto.last_price > crypto.goal_price:
@@ -115,9 +114,12 @@ class DataAnalysis():
             "decreased_10_perc_assets_in_1_hour": self.create_assets_json_array(
                 self.decreased_10_perc_assets_in_1_hour),
             "goal_achived_assets": self.create_assets_json_array(self.goal_achived_assets),
-            "max_decreased_asset_in_24_hours": self.max_decreased_asset_in_24_hours,
-            "the_most_fluctuationed_asset_in_24_hours": self.the_most_fluctuationed_asset_in_24_hours,
-            "max_increased_asset_in_24_hours": self.max_increased_asset_in_24_hours
+            "max_decreased_asset_in_24_hours": "Kayıp Gösteren varlık bulunmuyor." if self.max_decreased_asset_in_24_hours
+                                                                is None else self.max_decreased_asset_in_24_hours,
+            "the_most_fluctuationed_asset_in_24_hours": "Dalgalanan varlık bulunmuyor."
+            if self.the_most_fluctuationed_asset_in_24_hours is None else self.the_most_fluctuationed_asset_in_24_hours,
+            "max_increased_asset_in_24_hours": "Artış gösteren varlık bulunmuyor."
+            if self.max_increased_asset_in_24_hours is None else self.max_increased_asset_in_24_hours
         }
 
         self.mongoClient.add_most_decreased_asset_moments(
@@ -165,6 +167,9 @@ class DataAnalysis():
             json_array.append({
                 "asset": data
             })
+        if len(json_array) == 0:
+            json_array = "Varlık bulunamadı."
+
         print("json_array", json_array)
         return json_array
 
