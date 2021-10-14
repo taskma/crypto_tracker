@@ -11,11 +11,11 @@ exchange = "COINBASE"
 #Crypto Settings
 # İzlmek istediğim cryptolar
 #             Varlık adı, Miktarı  Hedef Değer
-my_assets = [["ETH",      0.8,     3705],
-             ["BTC",      0.1,     58350],
-             ["DOGE",     5000,    0.284],
-             ["ATOM",     30,      33.8],
-             ["FIL",      30,      70]]
+my_assets = [["ETH",      0.8,     3805],
+             ["BTC",      0.1,     59350],
+             ["DOGE",     5000,    0.384],
+             ["ATOM",     30,      43.8],
+             ["FIL",      30,      90]]
 
 #API Settings
 CRYPTINGUP_URL_BASE = "https://www.cryptingup.com/api/"

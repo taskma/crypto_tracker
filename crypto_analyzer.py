@@ -5,6 +5,7 @@ from datetime import datetime, timezone, timedelta
 from CollectionType import CollectionType
 from ifttApi import IFTTApi
 
+# IFTT API KEY GIRINIZ !!!
 iftt_api_key = "**"
 
 
@@ -72,7 +73,7 @@ class DataAnalysis():
         self.add_assets_info_to_monge_db()
         # Alarm ile ilgili bilgiler mongo db ye yazılır
         self.add_alarm_info_to_monge_db()
-        # Alarmlar IFTT e webhook ile gönderilerek, IFTT cep telefonu uygulamasından Alarm Notification alınması sağlanır
+        # Alarmlar IFTT e webhook ile gönderilerek, IFTT app cep telefonu uygulamasından Alarm Notification alınması sağlanır
         self.invoke_alarm_to_IFTT()
 
     def find_decreased_asset_moments(self):
@@ -116,6 +117,7 @@ class DataAnalysis():
             "goal_achived_assets": self.create_assets_json_array(self.goal_achived_assets),
             "max_decreased_asset_in_24_hours": self.max_decreased_asset_in_24_hours,
             "the_most_fluctuationed_asset_in_24_hours": self.the_most_fluctuationed_asset_in_24_hours,
+            "max_increased_asset_in_24_hours": self.max_increased_asset_in_24_hours
         }
 
         self.mongoClient.add_most_decreased_asset_moments(
