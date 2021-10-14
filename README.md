@@ -1,4 +1,4 @@
-# Data Engineer Projesi
+# Data Engineer Gelişim Programı Proje
 
 ![alt text](https://github.com/taskma/crypto_tracker/blob/master/Images/technolgies.png)
 
