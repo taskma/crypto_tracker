@@ -33,7 +33,7 @@ class RestApi(object):
 
         if response.status_code != 200:
             print("Api hata döndü !!")
-        print("response.json: ", response.json)
-        print("response.text: ", response.text)
+        # print("response.json: ", response.json)
+        # print("response.text: ", response.text)
         return response
 
