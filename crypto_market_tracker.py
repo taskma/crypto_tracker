@@ -20,17 +20,20 @@ my_assets = [["ETH",      0.8,     3805],
 #API Settings
 CRYPTINGUP_URL_BASE = "https://www.cryptingup.com/api/"
 cryptingup_api = RestApi(url_base=CRYPTINGUP_URL_BASE)
+# Server için saat düzeltme
+time_server_diff = 3
 #Kac saniyede bir market datasının alınacağı ve datat analiz yapılacağı
 data_collect_cycle_time_sec = 120
 data_analysis_cycle_time_sec = 150
 
 # Mongo client Oluşturulur
-mongoClient = MongoConnector(db_name="crypto_db", host="mongodb://localhost:27017/")
+mongoClient = MongoConnector(db_name="crypto_db", host="mongodb://localhost:27017/", time_diff=time_server_diff)
 
 
 class CryptoTracker(object):
-    def __init__(self, assets):
+    def __init__(self, assets, time_diff):
         self.my_assets = assets
+        self.time_diff = time_diff
 
     def timer_data_collect_process(self):
         print("yigit timer_process giris")
@@ -45,7 +48,7 @@ class CryptoTracker(object):
         # print("markets:", markets)
 
         asset_datas = []
-        ts = datetime.now() + timedelta(hours=3)
+        ts = self.get_time_now()
         #Market datası içinde cyrptoları ara
         total_amount = 0
         for asset in my_assets:
@@ -65,19 +68,22 @@ class CryptoTracker(object):
         t = threading.Timer(data_collect_cycle_time_sec, self.timer_data_collect_process)
         t.start()
 
+    def timer_crypto_analysis_process(self):
+        dataAnalysis = DataAnalysis(assets=my_assets, mongoClient=mongoClient, time_diff=self.time_diff)
+        dataAnalysis.analysis_process()
+        # Timer tekrar kurulur
+        z = threading.Timer(data_analysis_cycle_time_sec, self.timer_crypto_analysis_process)
+        z.start()
+
+    def get_time_now(self):
+        return datetime.now() + timedelta(hours=self.time_diff)
+
     def get_total_asset_json(self, time, total_price):
         return {
                 "ts": time,
                 "metadata": {"asset": "total_usd", "symbol": "worth-usd"},
                 "price": total_price
         }
-
-    def timer_crypto_analysis_process(self):
-        dataAnalysis = DataAnalysis(assets=my_assets, mongoClient=mongoClient)
-        dataAnalysis.analysis_process()
-        # Timer tekrar kurulur
-        z = threading.Timer(data_analysis_cycle_time_sec, self.timer_crypto_analysis_process)
-        z.start()
 
     def find_asset_in_market(self, markets, asset, ts):
         for market in markets:
@@ -95,7 +101,7 @@ class CryptoTracker(object):
 #Baslangic mongo db bağlantısı yapılır
 db_result = mongoClient.connect()
 if db_result:
-    cryptoTracker = CryptoTracker(assets=my_assets)
+    cryptoTracker = CryptoTracker(assets=my_assets, time_diff=time_server_diff)
     # Data Collector Timer başlatılır
     cryptoTracker.timer_data_collect_process()
     # Data Analyszer Timer başlatılır

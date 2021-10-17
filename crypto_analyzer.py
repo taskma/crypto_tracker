@@ -27,8 +27,9 @@ class Crypto():
 
 
 class DataAnalysis():
-    def __init__(self, assets, mongoClient):
+    def __init__(self, assets, mongoClient, time_diff):
         # crypto listesi
+        self.time_diff = time_diff
         self.mongoClient = mongoClient
         self.my_cryptos = []
         self.my_assets = assets
@@ -75,6 +76,9 @@ class DataAnalysis():
         self.add_alarm_info_to_monge_db()
         # Alarmlar IFTT e webhook ile gönderilerek, IFTT app cep telefonu uygulamasından Alarm Notification alınması sağlanır
         self.invoke_alarm_to_IFTT()
+
+    def get_time_now(self):
+        return datetime.now() + timedelta(hours=self.time_diff)
 
     def find_decreased_asset_moments(self):
         for crypto in self.my_cryptos:
@@ -241,12 +245,12 @@ class DataAnalysis():
 
             last_one_hour_index = len(crypto.collection_avr_prices_in_hours) - 1
             crypto.one_hour_ago_price = crypto.collection_avr_prices_in_hours[last_one_hour_index]
-            # print("avarage prices: ", crypto.asset)
-            # for col in crypto.collection_avr_prices_in_hours:
-            #     print(col)
+            print("avarage prices: ", crypto.asset)
+            for col in crypto.collection_avr_prices_in_hours:
+                print(col)
 
     def add_hours_to_now(self, hours):
-        return datetime.now() + timedelta(hours=hours)
+        return self.get_time_now() + timedelta(hours=hours)
 
     def create_crypto_list(self):
         for asset in self.my_assets:

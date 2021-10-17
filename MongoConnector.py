@@ -4,7 +4,8 @@ from datetime import datetime, timezone, timedelta
 from CollectionType import CollectionType
 
 class MongoConnector(object):
-    def __init__(self, db_name, host):
+    def __init__(self, db_name, host, time_diff):
+        self.time_diff = time_diff
         self.host = host
         self.db_name = db_name
         self.conn = None
@@ -29,6 +30,9 @@ class MongoConnector(object):
             return False
         print("MongoDB bağlantısı başarılı!!!")
         return True
+
+    def get_time_now(self):
+        return datetime.now() + timedelta(hours=self.time_diff)
 
     def add_most_decreased_asset_moments(self, data):
         self.most_decreased_asset_moments.drop()
@@ -63,7 +67,7 @@ class MongoConnector(object):
         print("Data inserted with record ids", rec_id1)
 
     def get_crypto_data_by_asset_last_hours(self, asset, hours):
-        search_time = datetime.now() + timedelta(hours=-1 * hours)
+        search_time = self.get_time_now() + timedelta(hours=-1 * hours)
         collection = self.collection.find(
             {"ts": {"$gt": search_time},
              "metadata": {"asset": asset, "symbol": "{}-USD".format(asset)}
