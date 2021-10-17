@@ -170,7 +170,7 @@ class DataAnalysis():
         if len(json_array) == 0:
             json_array = "Varlık bulunamadı."
 
-        print("json_array", json_array)
+        # print("json_array", json_array)
         return json_array
 
     def create_moments_json_array(self, data_array):
@@ -182,7 +182,7 @@ class DataAnalysis():
                 "hour": 24 - counter,
                 "diff_percentage": data
             })
-        print("json_array", json_array)
+        # print("json_array", json_array)
         return json_array
 
     def add_assets_info_to_monge_db(self):
@@ -267,8 +267,8 @@ class DataAnalysis():
                     self.max_decreased_asset_in_24_hours = crypto.asset
                 print("first", crypto.asset, crypto.first_price, crypto.collections[0].time,
                       crypto.diff_inn_24_hours_perc)
-                print("last", crypto.asset, crypto.last_price, crypto.collections[-1].time,
-                      crypto.diff_inn_24_hours_perc)
+                # print("last", crypto.asset, crypto.last_price, crypto.collections[-1].time,
+                #       crypto.diff_inn_24_hours_perc)
             # print(crypto.asset)
             # for col in crypto.collections:
             #     print(col.time, col.price)

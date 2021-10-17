@@ -3,7 +3,7 @@ from RestApi import RestApi, HttpMethode
 from MongoConnector import MongoConnector
 from crypto_analyzer import DataAnalysis
 import threading
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 #Crypto Settings
 # Cryptoları hangi borsadan takip edeceğim
@@ -36,17 +36,16 @@ class CryptoTracker(object):
         print("yigit timer_process giris")
         # Market datası okunur
         response = cryptingup_api.api_call(function="assets/USD/markets", httpMethode=HttpMethode.GET)
-        print(response)
+        # print(response)
         if response.status_code != 200:
             return
         # Market Datası
         response_json = json.loads(response.text)
         markets = response_json["markets"]
-        print(type(markets))
-        print("markets:", markets)
+        # print("markets:", markets)
 
         asset_datas = []
-        ts = datetime.now()
+        ts = datetime.now() + timedelta(hours=3)
         #Market datası içinde cyrptoları ara
         total_amount = 0
         for asset in my_assets:

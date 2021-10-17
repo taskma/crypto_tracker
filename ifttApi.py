@@ -11,6 +11,8 @@ class IFTTApi(object):
         self.api_key = api_key
 
     def sendWebHook(self, event_key, value1, value2 = "", value3 = ""):
+        if self.api_key == "**":
+            return None, None
         url = API_URL.format(event_key, self.api_key)
         data = {'value1': value1, 'value2': value2, 'value3': value3, }
 
