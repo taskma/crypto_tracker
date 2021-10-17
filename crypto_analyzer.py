@@ -245,9 +245,9 @@ class DataAnalysis():
 
             last_one_hour_index = len(crypto.collection_avr_prices_in_hours) - 1
             crypto.one_hour_ago_price = crypto.collection_avr_prices_in_hours[last_one_hour_index]
-            print("avarage prices: ", crypto.asset)
-            for col in crypto.collection_avr_prices_in_hours:
-                print(col)
+            # print("avarage prices: ", crypto.asset)
+            # for col in crypto.collection_avr_prices_in_hours:
+            #     print(col)
 
     def add_hours_to_now(self, hours):
         return self.get_time_now() + timedelta(hours=hours)
