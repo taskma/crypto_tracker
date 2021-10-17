@@ -97,11 +97,12 @@ class DataAnalysis():
         for crypto in self.my_cryptos:
             # son 24 saat
             # unutma
-            if ((crypto.last_price - crypto.first_price) / crypto.first_price * 100) <= -10:
+            if crypto.first_price > 0 and ((crypto.last_price - crypto.first_price) / crypto.first_price * 100) <= -10:
                 # if ((crypto.last_price - crypto.first_price) / crypto.first_price * 100) <= -1:
                 self.decreased_10_perc_assets_in_24_hours.append(crypto.asset)
             # son 1 saat
-            if ((crypto.last_price - crypto.one_hour_ago_price) / crypto.one_hour_ago_price * 100) <= -10:
+            if crypto.one_hour_ago_price > 0 and (
+                    (crypto.last_price - crypto.one_hour_ago_price) / crypto.one_hour_ago_price * 100) <= -10:
                 # if ((crypto.last_price - crypto.one_hour_ago_price) / crypto.one_hour_ago_price * 100) <= -1:
                 self.decreased_10_perc_assets_in_1_hour.append(crypto.asset)
 
@@ -115,7 +116,7 @@ class DataAnalysis():
                 self.decreased_10_perc_assets_in_1_hour),
             "goal_achived_assets": self.create_assets_json_array(self.goal_achived_assets),
             "max_decreased_asset_in_24_hours": "Kayıp Gösteren varlık bulunmuyor." if self.max_decreased_asset_in_24_hours
-                                                                is None else self.max_decreased_asset_in_24_hours,
+                                                                                      is None else self.max_decreased_asset_in_24_hours,
             "the_most_fluctuationed_asset_in_24_hours": "Dalgalanan varlık bulunmuyor."
             if self.the_most_fluctuationed_asset_in_24_hours is None else self.the_most_fluctuationed_asset_in_24_hours,
             "max_increased_asset_in_24_hours": "Artış gösteren varlık bulunmuyor."
