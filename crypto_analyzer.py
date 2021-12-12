@@ -5,9 +5,6 @@ from datetime import datetime, timezone, timedelta
 from CollectionType import CollectionType
 from ifttApi import IFTTApi
 
-# IFTT API KEY GIRINIZ !!!
-iftt_api_key = "**"
-
 
 class Crypto():
     def __init__(self, asset, quantity, goal_price):
@@ -27,7 +24,7 @@ class Crypto():
 
 
 class DataAnalysis():
-    def __init__(self, assets, mongoClient, time_diff):
+    def __init__(self, assets, mongoClient, time_diff, iftt_api_key):
         # crypto listesi
         self.time_diff = time_diff
         self.mongoClient = mongoClient

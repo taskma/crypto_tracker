@@ -11,11 +11,9 @@ exchange = "COINBASE"
 #Crypto Settings
 # İzlmek istediğim cryptolar
 #             Varlık adı, Miktarı  Hedef Değer
-my_assets = [["ETH",      0.8,     3805],
-             ["BTC",      0.1,     59350],
-             ["DOGE",     5000,    0.384],
-             ["ATOM",     30,      43.8],
-             ["FIL",      30,      90]]
+my_assets = [["ETH",      0.8,     4400],
+             ["BTC",      0.1,     70000],
+             ["DOGE",     5000,    0.684]]
 
 #API Settings
 CRYPTINGUP_URL_BASE = "https://www.cryptingup.com/api/"
@@ -25,6 +23,7 @@ time_server_diff = 3
 #Kac saniyede bir market datasının alınacağı ve datat analiz yapılacağı
 data_collect_cycle_time_sec = 120
 data_analysis_cycle_time_sec = 150
+ifft_api_key = None # create a file that name is 'iftt_api_key.txt' and write iftt api key
 
 # Mongo client Oluşturulur
 mongoClient = MongoConnector(db_name="crypto_db", host="mongodb://localhost:27017/", time_diff=time_server_diff)
@@ -69,7 +68,7 @@ class CryptoTracker(object):
         t.start()
 
     def timer_crypto_analysis_process(self):
-        dataAnalysis = DataAnalysis(assets=my_assets, mongoClient=mongoClient, time_diff=self.time_diff)
+        dataAnalysis = DataAnalysis(assets=my_assets, mongoClient=mongoClient, time_diff=self.time_diff, iftt_api_key=ifft_api_key)
         dataAnalysis.analysis_process()
         # Timer tekrar kurulur
         z = threading.Timer(data_analysis_cycle_time_sec, self.timer_crypto_analysis_process)
@@ -96,12 +95,28 @@ class CryptoTracker(object):
                     },
                     market["price"]
                 )
+    
+    def read_iftt_api_key(self):
+        lines = []
+        try:
+            with open('iftt_api_key.txt') as f:
+                lines = f.readlines()
+            if lines != None and len(lines) > 0:
+                ifft_key = lines[0]
+                print(ifft_key)
+                return ifft_key
+            print("read iff_api_key file error")
+            return False
+        except:
+            print("read iff_api_key file error")
+            return False
 
 
 #Baslangic mongo db bağlantısı yapılır
 db_result = mongoClient.connect()
 if db_result:
     cryptoTracker = CryptoTracker(assets=my_assets, time_diff=time_server_diff)
+    ifft_api_key = cryptoTracker.read_iftt_api_key()
     # Data Collector Timer başlatılır
     cryptoTracker.timer_data_collect_process()
     # Data Analyszer Timer başlatılır
