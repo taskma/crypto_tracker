@@ -26,7 +26,7 @@ data_analysis_cycle_time_sec = 150
 ifft_api_key = None # create a file that name is 'iftt_api_key.txt' and write iftt api key
 
 # Mongo client Oluşturulur
-mongoClient = MongoConnector(db_name="crypto_db", host="mongodb://admin:pass@localhost:27017/", time_diff=time_server_diff)
+mongoClient = MongoConnector(db_name="crypto_db", host="mongodb://admin:pass@localhost:59999/", time_diff=time_server_diff)
 
 
 class CryptoTracker(object):
