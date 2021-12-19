@@ -20,6 +20,6 @@ services:
       - "127.0.0.1:27017:27017"
     command:
         - '-f'
-        - '/etc/mongo.conf'
+        - '/etc/mongod.conf'
     volumes:
         - '/home/ec2-user/crypto_tracker/mongod.conf:/etc/mongod.conf'
