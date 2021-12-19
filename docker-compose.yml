@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+  cryptotracker:
+    image: crypto_tracker
+    build:
+      context: .
+      dockerfile: ./Dockerfile_Python
+    network_mode: host
+   
+  #   depends_on:
+  #     - mongo_db
+  mongo_db:
+    image: mongo_db_for_tracker
+    build:
+      context: .
+      dockerfile: ./Dockerfile_Mongo
+    # network_mode: host
+    ports:
+      - "127.0.0.1:27017:27017"
