@@ -3,6 +3,7 @@ version: '3.4'
 services:
   cryptotracker:
     image: crypto_tracker
+    container_name: crypto_tracker
     build:
       context: .
       dockerfile: ./Docker_Files/Python
@@ -13,6 +14,7 @@ services:
 
   mongodb:
     image: mongo_db
+    container_name: mongo_db
     build:
       context: .
       dockerfile: ./Docker_Files/Mongo
@@ -23,6 +25,8 @@ services:
         - '-f'
         - '/etc/mongod.conf'
         - --auth
+        - '--logpath'
+        - '/etc/specific.log'
     volumes:
         - '/home/ec2-user/crypto_tracker/mongod.conf:/etc/mongod.conf'
         - '/home/ec2-user/mongodbdata:/data/db'
