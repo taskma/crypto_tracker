@@ -22,7 +22,7 @@ services:
     command:
         - '-f'
         - '/etc/mongod.conf'
-        - [--auth]
+        - --auth
     volumes:
         - '/home/ec2-user/crypto_tracker/mongod.conf:/etc/mongod.conf'
         - '/home/ec2-user/mongodbdata:/data/db'
