@@ -5,7 +5,7 @@ services:
     image: crypto_tracker
     build:
       context: .
-      dockerfile: ./docker_Files/Dockerfile_Python
+      dockerfile: ./Docker_Files/Dockerfile_Python
     network_mode: host
    
   #   depends_on:
@@ -14,7 +14,7 @@ services:
     image: mongo_db_for_tracker
     build:
       context: .
-      dockerfile: ./docker_Files/Dockerfile_Mongo
+      dockerfile: ./Docker_Files/Dockerfile_Mongo
     # network_mode: host
     ports:
       - "127.0.0.1:27017:27017"
