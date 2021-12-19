@@ -17,7 +17,7 @@ services:
       dockerfile: ./Docker_Files/Dockerfile_Mongo
     # network_mode: host
     ports:
-      - "127.0.0.1:27017:27017"
+      - "27017:27017"
     command:
         - '-f'
         - '/etc/mongod.conf'
