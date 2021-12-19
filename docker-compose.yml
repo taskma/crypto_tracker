@@ -19,7 +19,7 @@ services:
       context: .
       dockerfile: ./Docker_Files/Mongo
     ports:
-      - "27017:27017"
+      - "59999:27017"
     restart: always
     command:
         - '-f'
