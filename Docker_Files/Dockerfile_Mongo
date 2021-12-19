@@ -1,6 +1,5 @@
 FROM mongo
 RUN apt-get update
-RUN apt-get install vim
-RUN 'Y'
+RUN yes | apt-get install vim
 RUN apt-get install nano
 RUN apt-get install sudo
