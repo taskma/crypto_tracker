@@ -5,19 +5,24 @@ services:
     image: crypto_tracker
     build:
       context: .
-      dockerfile: ./Docker_Files/Dockerfile_Python
+      dockerfile: ./Docker_Files/Python
     network_mode: host
-   
-  #   depends_on:
-  #     - mongo_db
-  mongo_db:
-    image: mongo_db_for_tracker
+    depends_on:
+      - "mongodb"
+    restart: always
+    environment:
+      # provide your credentials here
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+
+  mongodb:
+    image: mongo_db
     build:
       context: .
-      dockerfile: ./Docker_Files/Dockerfile_Mongo
-    # network_mode: host
+      dockerfile: ./Docker_Files/Mongo
     ports:
       - "27017:27017"
+    restart: always
     command:
         - '-f'
         - '/etc/mongod.conf'
