@@ -99,11 +99,11 @@ class CryptoTracker(object):
     def read_iftt_api_key(self):
         lines = []
         try:
-            with open('iftt_api_key.txt') as f:
+            with open('/iftt/iftt_api_key.txt') as f:
                 lines = f.readlines()
             if lines != None and len(lines) > 0:
                 ifft_key = lines[0]
-                print(ifft_key)
+                print("ifft_key ==> ", ifft_key)
                 return ifft_key
             print("read iff_api_key file error")
             return False

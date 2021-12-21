@@ -11,6 +11,8 @@ services:
     depends_on:
       - "mongodb"
     restart: always
+    volumes:
+      - '/home/ec2-user/iftt_api_key:/iftt'
 
   mongodb:
     image: mongo_db
@@ -25,8 +27,6 @@ services:
         - '-f'
         - '/etc/mongod.conf'
         - --auth
-        # - '--logpath'
-        # - '/etc/specific.log'
     volumes:
         - '/home/ec2-user/crypto_tracker/mongod.conf:/etc/mongod.conf'
         - '/home/ec2-user/mongodbdata:/data/db'
