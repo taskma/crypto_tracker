@@ -7,10 +7,11 @@ from ifttApi import IFTTApi
 
 
 class Crypto():
-    def __init__(self, asset, quantity, goal_price):
+    def __init__(self, asset, quantity, goal_price, low_achived_price):
         self.asset = asset
         self.quantity = quantity
         self.goal_price = goal_price
+        self.low_achived_price = low_achived_price
         self.collections = []
         self.collection_min_price = None
         self.collection_max_price = None
@@ -48,6 +49,7 @@ class DataAnalysis():
         self.decreased_10_perc_assets_in_1_hour = []
         # Fiyat bilgisi hedef bir değer üzerine çıkan varlıklar bilgisi
         self.goal_achived_assets = []
+        self.low_achived_assets = []
 
     def analysis_process(self):
         print("analysis_process giris")
@@ -91,8 +93,10 @@ class DataAnalysis():
 
     def find_goal_achived_assets(self):
         for crypto in self.my_cryptos:
-            if crypto.last_price > crypto.goal_price:
+            if crypto.last_price >= crypto.goal_price:
                 self.goal_achived_assets.append(crypto.asset)
+            if crypto.last_price <= crypto.low_achived_price:
+                self.low_achived_assets.append(crypto.asset)
 
     def find_decreased_10_perc_assets(self):
         for crypto in self.my_cryptos:
@@ -140,6 +144,9 @@ class DataAnalysis():
                                                   alarm_message)
         alarm_message = self.add_to_alarm_message(self.goal_achived_assets,
                                                   "24 saat içinde fiyat bilgisi hedef  değer üzerine çıkan varlıklar; {}",
+                                                  alarm_message)
+        alarm_message = self.add_to_alarm_message(self.low_achived_assets,
+                                                  "24 saat içinde fiyat bilgisi hedef  değere düşen varlıklar; {}",
                                                   alarm_message)
         if alarm_message != "":
             alarm_message = self.add_moments_to_alarm_message(self.max_decreased_asset_in_24_hours,
@@ -251,7 +258,7 @@ class DataAnalysis():
 
     def create_crypto_list(self):
         for asset in self.my_assets:
-            self.my_cryptos.append(Crypto(asset=asset[0], quantity=asset[1], goal_price=asset[2]))
+            self.my_cryptos.append(Crypto(asset=asset[0], quantity=asset[1], goal_price=asset[3], low_achived_price=asset[2]))
 
     def get_crypto_collection_last_hours(self, hours):
         for crypto in self.my_cryptos:
