@@ -12,7 +12,7 @@ services:
       - "mongodb"
     restart: always
     volumes:
-      - '/home/ec2-user/iftt_api_key:/iftt'
+      - '/home/ec2-user/iftt_api_key/iftt_api_key.txt:/iftt/iftt_api_key.txt'
 
   mongodb:
     image: mongo_db
