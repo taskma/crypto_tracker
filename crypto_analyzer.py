@@ -151,7 +151,7 @@ class DataAnalysis():
                                                               self.the_most_fluctuationed_asset_max_decreased_moment,
                                                               alarm_message)
             print("** IFTT Gönderiliyor.............................")
-            self.iftt_client.sendWebHook(event_key="redash", value1=alarm_message)
+            self.iftt_client.sendWebHook(event_key="taskma_trigger", value1=alarm_message)
 
     def add_to_alarm_message(self, data_array, new_message, alarm_message):
         if data_array is not None and len(data_array) > 0:
