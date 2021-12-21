@@ -11,8 +11,6 @@ services:
     depends_on:
       - "mongodb"
     restart: always
-    volumes:
-      - '/home/ec2-user/iftt:/iftt'
 
   mongodb:
     image: mongo_db
