@@ -23,7 +23,7 @@ time_server_diff = 3
 #Kac saniyede bir market datasının alınacağı ve datat analiz yapılacağı
 data_collect_cycle_time_sec = 120
 data_analysis_cycle_time_sec = 150
-ifft_api_key = None # create a file that name is 'iftt_api_key.txt' and write iftt api key
+ifft_api_key = 'Write here api key' 
 
 # Mongo client Oluşturulur
 mongoClient = MongoConnector(db_name="crypto_db", host="mongodb://admin:pass@localhost:59999/", time_diff=time_server_diff)
@@ -96,27 +96,27 @@ class CryptoTracker(object):
                     market["price"]
                 )
     
-    def read_iftt_api_key(self):
-        lines = []
-        try:
-            with open('/iftt/iftt_api_key.txt') as f:
-                lines = f.readlines()
-            if lines != None and len(lines) > 0:
-                ifft_key = lines[0]
-                print("ifft_key ==> ", ifft_key)
-                return ifft_key
-            print("read iff_api_key file error")
-            return False
-        except:
-            print("read iff_api_key file error")
-            return False
+    # def read_iftt_api_key(self):
+    #     lines = []
+    #     try:
+    #         with open('/iftt/iftt_api_key.txt') as f:
+    #             lines = f.readlines()
+    #         if lines != None and len(lines) > 0:
+    #             ifft_key = lines[0]
+    #             print("ifft_key ==> ", ifft_key)
+    #             return ifft_key
+    #         print("read iff_api_key file error")
+    #         return False
+    #     except:
+    #         print("read iff_api_key file error")
+    #         return False
 
 
 #Baslangic mongo db bağlantısı yapılır
 db_result = mongoClient.connect()
 if db_result:
     cryptoTracker = CryptoTracker(assets=my_assets, time_diff=time_server_diff)
-    ifft_api_key = cryptoTracker.read_iftt_api_key()
+    # ifft_api_key = cryptoTracker.read_iftt_api_key()
     # Data Collector Timer başlatılır
     cryptoTracker.timer_data_collect_process()
     # Data Analyszer Timer başlatılır
