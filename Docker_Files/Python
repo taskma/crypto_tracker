@@ -8,5 +8,5 @@ RUN python3 -m pip install -r requirements.txt
 WORKDIR /python_app
 COPY . /python_app
 RUN mkdir /iftt
-RUN echo 'Write iftt api key here' > /iftt/iftt_api_key.txt
+RUN echo 'Write iftt api here' > /iftt/iftt_api_key.txt
 CMD ["python3", "crypto_market_tracker.py"]
