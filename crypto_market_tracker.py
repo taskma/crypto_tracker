@@ -11,7 +11,7 @@ exchange = "COINBASE"
 #Crypto Settings
 # İzlmek istediğim cryptolar
 #             Varlık adı, Miktarı  Hedef Değer
-my_assets = [["ETH",      0.8,     4400],
+my_assets = [["ETH",      0.8,     3700],
              ["BTC",      0.1,     70000],
              ["DOGE",     5000,    0.684]]
 
